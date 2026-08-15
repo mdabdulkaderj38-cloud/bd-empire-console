@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BD EMPIRE CONSOLE V4 - Final</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Inter',sans-serif}
+.mono{font-family:'JetBrains Mono',monospace}
+body{background:#08080e; color:#e5e5e5;}
+.glass{background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); backdrop-filter:blur(20px)}
+.glass-strong{background:rgba(16,16,23,0.9); border:1px solid rgba(255,255,255,0.12); backdrop-filter:blur(24px)}
+.glow{box-shadow:0 0 40px rgba(124,58,237,0.15)}
+</style>
+</head>
+<body class="min-h-screen">
+<div id="lockScreen" class="fixed inset-0 z-[100] bg-[#08080e] flex items-center justify-center p-6 hidden">
+  <div class="w-full max-w-[360px] glass-strong rounded-[24px] p-8 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 mx-auto flex items-center justify-center text-xl font-bold">🔒</div>
+    <h2 class="mt-4 font-semibold">Console Locked</h2>
+    <p class="text-[12px] text-zinc-500 mt-1">Enter PIN to unlock</p>
+    <input id="pinInput" type="password" maxlength="4" placeholder="••••" class="mt-6 w-full h-14 rounded-xl bg-black/50 border border-white/10 text-center text-xl tracking-[0.5em] outline-none focus:border-violet-500">
+    <button onclick="unlockConsole()" class="mt-4 w-full h-11 rounded-full bg-white text-black font-medium">Unlock</button>
+    <div id="pinErr" class="text-[11px] text-red-400 mt-2 hidden">Wrong PIN</div>
+  </div>
+</div>
+
+<div class="flex min-h-screen">
+<aside class="w-[260px] hidden lg:flex flex-col p-4 border-r border-white/[0.06] bg-[#101017]">
+  <div class="flex items-center gap-3 px-2 py-2">
+    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center font-bold">B</div>
+    <div><div class="font-semibold text-[14px]">BD EMPIRE</div><div class="text-[10px] mono text-zinc-500">CONSOLE V4</div></div>
+  </div>
+  <nav class="mt-8 space-y-1" id="nav">
+    <button data-tab="dashboard" class="tabBtn w-full text-left px-3 py-2.5 rounded-xl bg-white text-black text-[13px] font-medium">Dashboard</button>
+    <button data-tab="apps" class="tabBtn w-full text-left px-3 py-2.5 rounded-xl text-zinc-400 text-[13px]">My Apps & Games</button>
+    <button data-tab="ads" class="tabBtn w-full text-left px-3 py-2.5 rounded-xl text-zinc-400 text-[13px]">Ad Setup</button>
+    <button data-tab="earnings" class="tabBtn w-full text-left px-3 py-2.5 rounded-xl text-zinc-400 text-[13px]">Earnings</button>
+    <button data-tab="publish" class="tabBtn w-full text-left px-3 py-2.5 rounded-xl text-zinc-400 text-[13px]">Publish Center</button>
+    <button data-tab="settings" class="tabBtn w-full text-left px-3 py-2.5 rounded-xl text-zinc-400 text-[13px]">Settings & Lock</button>
+  </nav>
+  <div class="mt-auto glass rounded-xl p-3">
+    <div class="text-[11px] mono text-zinc-500">LIVE LOGIC V4</div>
+    <div class="text-[12px] mt-1">Only <span class="text-emerald-400">vercel.app</span> = Live<br>.com = Not Live</div>
+  </div>
+</aside>
+
+<main class="flex-1">
+<header class="h-[60px] border-b border-white/[0.06] flex items-center justify-between px-6 bg-[#101017]/80 backdrop-blur">
+  <div class="flex items-center gap-3"><span class="lg:hidden font-bold">BD EMPIRE V4</span><span id="liveIndicator" class="text-[11px] mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Checking...</span></div>
+  <div class="flex items-center gap-2">
+    <select id="langSwitch" onchange="setLang(this.value)" class="h-9 rounded-full bg-white/[0.06] border border-white/10 px-3 text-[12px]">
+      <option value="en">EN</option><option value="bn">BN বাংলা</option><option value="hi">HI हिन्दी</option><option value="ur">UR اردو</option><option value="ar">AR العربية</option>
+    </select>
+    <button onclick="openAddModal()" class="h-9 px-4 rounded-full bg-white text-black text-[12px] font-medium">+ Add Live</button>
+  </div>
+</header>
+
+<div class="p-6 max-w-[1100px] mx-auto">
+  <!-- Dashboard -->
+  <div id="tab-dashboard" class="tab">
+    <h1 class="text-[24px] font-semibold">Dashboard V4 • No Draft</h1>
+    <p class="text-[13px] text-zinc-500 mt-1">Save = Live Connected • Only vercel.app counts as Live</p>
+    <div class="grid grid-cols-3 gap-4 mt-6">
+      <div class="glass rounded-[16px] p-4"><div class="text-[11px] mono text-zinc-500">TOTAL PROJECTS</div><div id="statTotal" class="text-[22px] font-semibold mt-1">0</div></div>
+      <div class="glass rounded-[16px] p-4"><div class="text-[11px] mono text-zinc-500">LIVE (vercel.app)</div><div id="statLive" class="text-[22px] font-semibold mt-1 text-emerald-400">0</div></div>
+      <div class="glass rounded-[16px] p-4"><div class="text-[11px] mono text-zinc-500">NOT LIVE (.com/other)</div><div id="statNotLive" class="text-[22px] font-semibold mt-1 text-zinc-400">0</div></div>
+    </div>
+    <div id="recentList" class="mt-6 grid gap-2"></div>
+  </div>
+
+  <!-- Apps -->
+  <div id="tab-apps" class="tab hidden">
+    <div class="flex justify-between items-center"><h2 class="text-[18px] font-semibold">My Apps & Games • V4 Website Added</h2><div class="flex gap-2"><span class="text-[11px] px-2 py-1 rounded-full glass">🌐 Website</span><span class="text-[11px] px-2 py-1 rounded-full glass">📱 App</span><span class="text-[11px] px-2 py-1 rounded-full glass">🎮 Game</span></div></div>
+    <div id="appsGrid" class="mt-6 grid md:grid-cols-2 gap-3"></div>
+  </div>
+
+  <!-- Ad Setup V4 -->
+  <div id="tab-ads" class="tab hidden">
+    <h2 class="text-[18px] font-semibold">Ad Setup V4 • Real Injection</h2>
+    <p class="text-[12px] text-zinc-500 mt-1">Paste Adsterra / Monetag / A-ADS code • Enable • Save = Real Ad on your sites via #banner-ad</p>
+    <div class="grid md:grid-cols-2 gap-4 mt-6">
+      <div class="glass rounded-[20px] p-5">
+        <div class="flex justify-between"><label class="text-[11px] mono uppercase">Banner Ad Code</label><label class="flex items-center gap-2 text-[11px]"><input type="checkbox" id="bannerEnabled"> Enable</label></div>
+        <textarea id="bannerCode" placeholder="Paste Adsterra Banner <script>... </script> or A-ADS code" class="mt-3 w-full h-[140px] rounded-xl bg-black/40 border border-white/10 p-3 text-[12px] mono outline-none focus:border-violet-500/50"></textarea>
+        <div class="text-[11px] text-zinc-500 mt-2">Injects into #banner-ad on caption site</div>
+      </div>
+      <div class="glass rounded-[20px] p-5">
+        <div class="flex justify-between"><label class="text-[11px] mono uppercase">Interstitial Ad Code</label><label class="flex items-center gap-2 text-[11px]"><input type="checkbox" id="interEnabled"> Enable</label></div>
+        <textarea id="interCode" placeholder="Paste PropellerAds Onclick / Interstitial code" class="mt-3 w-full h-[140px] rounded-xl bg-black/40 border border-white/10 p-3 text-[12px] mono outline-none focus:border-violet-500/50"></textarea>
+        <div class="text-[11px] text-zinc-500 mt-2">Shows after 8 sec on public site</div>
+      </div>
+    </div>
+    <button onclick="saveAds()" class="mt-4 h-11 px-6 rounded-full bg-white text-black font-medium text-[13px]">Save & Inject Ads</button>
+    <div class="mt-6 glass rounded-[16px] p-4">
+      <div class="text-[11px] mono">PREVIEW #banner-ad</div>
+      <div id="bannerPreview" class="mt-3 min-h-[90px] rounded-xl bg-white/[0.03] border border-dashed border-white/10 flex items-center justify-center text-[12px] text-zinc-500">No ad code enabled</div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div id="tab-settings" class="tab hidden">
+    <h2 class="text-[18px] font-semibold">Settings V4 • PIN Lock + 5 Languages</h2>
+    <div class="grid md:grid-cols-2 gap-4 mt-6">
+      <div class="glass rounded-[20px] p-5">
+        <div class="text-[13px] font-medium">🔒 PIN Lock System</div>
+        <p class="text-[11px] text-zinc-500 mt-1">Lock console from others</p>
+        <input id="newPin" maxlength="4" placeholder="Set 4-digit PIN" class="mt-4 w-full h-11 rounded-xl bg-black/40 border border-white/10 px-4 text-[14px] mono outline-none">
+        <div class="flex gap-2 mt-3"><button onclick="setPin()" class="flex-1 h-10 rounded-full bg-white text-black text-[12px] font-medium">Set PIN</button><button onclick="toggleLock()" id="lockToggleBtn" class="flex-1 h-10 rounded-full glass text-[12px]">Enable Lock</button></div>
+        <div id="pinStatus" class="text-[11px] mt-2 text-zinc-500">No PIN set</div>
+      </div>
+      <div class="glass rounded-[20px] p-5">
+        <div class="text-[13px] font-medium">🌐 5 Languages</div>
+        <div class="grid grid-cols-2 gap-2 mt-4 text-[12px]">
+          <button onclick="setLang('en')" class="h-10 rounded-xl glass">EN English</button>
+          <button onclick="setLang('bn')" class="h-10 rounded-xl glass">BN বাংলা</button>
+          <button onclick="setLang('hi')" class="h-10 rounded-xl glass">HI हिन्दी</button>
+          <button onclick="setLang('ur')" class="h-10 rounded-xl glass">UR اردو</button>
+          <button onclick="setLang('ar')" class="h-10 rounded-xl glass">AR العربية</button>
+        </div>
+        <div class="mt-4 text-[11px] mono text-zinc-500">Current: <span id="curLang">EN</span></div>
+      </div>
+    </div>
+    <div class="mt-6 glass rounded-[20px] p-5">
+      <div class="text-[12px] mono">V4 CHANGELOG - No Design Change</div>
+      <ul class="text-[12px] text-zinc-400 mt-3 space-y-1 list-disc ml-4">
+        <li>Added Website type (was only App/Game)</li>
+        <li>Live = only vercel.app domains</li>
+        <li>Removed Draft system - Save = Live Connected directly</li>
+        <li>Ad Setup: Banner + Interstitial Paste & Enable real injection</li>
+        <li>PIN Lock in Settings</li>
+        <li>5 Languages intact</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="tab-earnings" class="tab hidden"><h2 class="text-[18px] font-semibold">Earnings</h2><p class="text-[13px] text-zinc-500 mt-2">Manual tracker - real money in Adsterra / Binance dashboard. This is tracker only.</p></div>
+  <div id="tab-publish" class="tab hidden"><h2 class="text-[18px] font-semibold">Publish Center</h2><ul class="mt-4 grid gap-2 text-[13px]"><li class="glass p-3 rounded-xl">Amazon Appstore - 2nd biggest</li><li class="glass p-3 rounded-xl">Samsung Galaxy Store - Auto on Samsung</li><li class="glass p-3 rounded-xl">Huawei AppGallery</li><li class="glass p-3 rounded-xl">APKPure, Aptoide, F-Droid, SlideMe, Uptodown - All free, no $25</li></ul></div>
+</div>
+</main>
+</div>
+
+<!-- Add Modal V4 - No Draft -->
+<div id="addModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+<div class="absolute inset-0 bg-black/70 backdrop-blur-xl" onclick="closeAddModal()"></div>
+<div class="relative w-full max-w-[520px] glass-strong rounded-[24px] p-6 glow">
+  <div class="flex justify-between"><h3 class="font-semibold">Add New - Direct Live V4</h3><button onclick="closeAddModal()" class="w-8 h-8 rounded-full bg-white/10">✕</button></div>
+  <p class="text-[11px] text-zinc-500 mt-1">No Draft - Save করলেই Live Connected • Only vercel.app = Live</p>
+  <div class="mt-5 space-y-4">
+    <div><label class="text-[11px] mono uppercase text-zinc-500">Project Name *</label><input id="fName" placeholder="AI Viral Caption Maker" class="mt-2 w-full h-11 rounded-xl bg-black/40 border border-white/10 px-4 text-[14px] outline-none focus:border-violet-500"></div>
+    <div><label class="text-[11px] mono uppercase text-zinc-500">Type V4 (Website Added)</label>
+      <div class="mt-2 flex gap-2">
+        <button onclick="setType('Website')" data-type="Website" class="typeBtn flex-1 h-10 rounded-xl bg-white text-black border text-[13px]">🌐 Website</button>
+        <button onclick="setType('App')" data-type="App" class="typeBtn flex-1 h-10 rounded-xl glass border-white/10 text-[13px]">📱 App</button>
+        <button onclick="setType('Game')" data-type="Game" class="typeBtn flex-1 h-10 rounded-xl glass border-white/10 text-[13px]">🎮 Game</button>
+      </div>
+    </div>
+    <div><label class="text-[11px] mono uppercase text-zinc-500">Live Link * vercel.app only = Live</label><input id="fLink" placeholder="https://your-app.vercel.app" class="mt-2 w-full h-11 rounded-xl bg-black/40 border border-white/10 px-4 text-[13px] mono outline-none focus:border-emerald-500/50"><div id="liveCheck" class="text-[11px] mt-1 text-zinc-500">Paste link to check Live status</div></div>
+    <button onclick="saveProject()" class="w-full h-11 rounded-full bg-white text-black font-medium">Save & Live Connected 🚀</button>
+  </div>
+</div>
+</div>
+
+<div id="toast" class="fixed bottom-6 right-6 glass-strong rounded-full px-4 py-2.5 text-[13px] hidden">Saved</div>
+
+<script>
+const i18n={en:{dashboard:"Dashboard",myApps:"My Apps & Games",adSetup:"Ad Setup",earnings:"Earnings",publish:"Publish Center"},bn:{dashboard:"ড্যাশবোর্ড",myApps:"আমার অ্যাপ ও গেম",adSetup:"বিজ্ঞাপন সেটআপ",earnings:"আয়",publish:"পাবলিশ সেন্টার"},hi:{dashboard:"डैशबोर्ड",myApps:"मेरे ऐप्स",adSetup:"विज्ञापन",earnings:"कमाई",publish:"पब्लिश"},ur:{dashboard:"ڈیش بورڈ",myApps:"میری ایپس",adSetup:"اشتہار",earnings:"آمدنی",publish:"پبلش"},ar:{dashboard:"لوحة التحكم",myApps:"تطبيقاتي",adSetup:"الإعلانات",earnings:"الأرباح",publish:"النشر"}};
+let curType='Website';
+let projects=JSON.parse(localStorage.getItem('bd_empire_projects_v4')||localStorage.getItem('bd_empire_projects')||'[]');
+let ads=JSON.parse(localStorage.getItem('bd_empire_ads')||'{}');
+let pin=localStorage.getItem('bd_empire_pin');
+let pinEnabled=localStorage.getItem('bd_empire_pin_enabled')==='1';
+let curLang=localStorage.getItem('bd-empire-lang')||'en';
+
+function isVercelLive(link){ return link && link.includes('vercel.app'); }
+
+function setLang(l){curLang=l; localStorage.setItem('bd-empire-lang',l); document.getElementById('curLang').textContent=l.toUpperCase(); document.getElementById('langSwitch').value=l; applyTranslations(); toast('Language: '+l);}
+function applyTranslations(){ document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n; if(i18n[curLang]&&i18n[curLang][k]) el.textContent=i18n[curLang][k];});}
+
+function toast(m){const t=document.getElementById('toast'); t.textContent=m; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2500);}
+
+function render(){
+  const liveCount=projects.filter(p=>isVercelLive(p.link||p.websiteLink)).length;
+  document.getElementById('statTotal').textContent=projects.length;
+  document.getElementById('statLive').textContent=liveCount;
+  document.getElementById('statNotLive').textContent=projects.length-liveCount;
+  document.getElementById('liveIndicator').textContent= location.hostname.includes('vercel.app') ? '● Live Connected (vercel.app)' : '○ Not Live - Deploy to vercel.app';
+  document.getElementById('liveIndicator').className= location.hostname.includes('vercel.app') ? 'text-[11px] mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-[11px] mono px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20';
+
+  const grid=document.getElementById('appsGrid'); grid.innerHTML='';
+  const recent=document.getElementById('recentList'); recent.innerHTML='';
+  projects.slice(-6).reverse().forEach(p=>{
+    const live=isVercelLive(p.link);
+    const card=`<div class="glass rounded-[16px] p-4 flex justify-between items-center"><div><div class="font-medium text-[14px]">${p.name} <span class="text-[10px] px-2 py-0.5 rounded-full ${live?'bg-emerald-500/20 text-emerald-400':'bg-zinc-500/20 text-zinc-400'}">${live?'Live • vercel.app':'Not Live'}</span></div><div class="text-[11px] mono text-zinc-500 mt-1">${p.type} • ${p.link}</div></div><button onclick="copyLink('${p.link}')" class="text-[11px] px-3 py-1 rounded-full glass">Copy</button></div>`;
+    grid.innerHTML+=card;
+    recent.innerHTML+=card;
+  });
+  if(projects.length===0){ grid.innerHTML='<div class="col-span-2 glass rounded-[16px] p-8 text-center text-[13px] text-zinc-500">Empty at start - Add Live directly V4 • No Draft</div>'; }
+
+  document.getElementById('bannerCode').value=ads.bannerCode||'';
+  document.getElementById('interCode').value=ads.interCode||'';
+  document.getElementById('bannerEnabled').checked=!!ads.bannerEnabled;
+  document.getElementById('interEnabled').checked=!!ads.interEnabled;
+  const prev=document.getElementById('bannerPreview');
+  if(ads.bannerEnabled && ads.bannerCode){ prev.innerHTML=ads.bannerCode; } else { prev.textContent='No ad code enabled'; }
+
+  document.getElementById('pinStatus').textContent= pin ? `PIN set • Lock ${pinEnabled?'Enabled':'Disabled'}` : 'No PIN set';
+  document.getElementById('lockToggleBtn').textContent= pinEnabled ? 'Disable Lock' : 'Enable Lock';
+  document.getElementById('curLang').textContent=curLang.toUpperCase();
+  document.getElementById('langSwitch').value=curLang;
+
+  if(pinEnabled && pin){ document.getElementById('lockScreen').classList.remove('hidden'); document.getElementById('lockScreen').classList.add('flex'); }
+}
+
+function setType(t){curType=t; document.querySelectorAll('.typeBtn').forEach(b=>{b.className='typeBtn flex-1 h-10 rounded-xl glass border-white/10 text-[13px]';}); document.querySelector(`[data-type="${t}"]`).className='typeBtn flex-1 h-10 rounded-xl bg-white text-black border text-[13px]';}
+
+function openAddModal(){document.getElementById('addModal').classList.remove('hidden'); document.getElementById('addModal').classList.add('flex');}
+function closeAddModal(){document.getElementById('addModal').classList.add('hidden');}
+document.getElementById('fLink').addEventListener('input', e=>{const v=e.target.value; const live=isVercelLive(v); document.getElementById('liveCheck').textContent= live ? '✅ Live - vercel.app detected' : '⚠️ Not Live - Only vercel.app counts as Live (not .com)'; document.getElementById('liveCheck').className= live ? 'text-[11px] mt-1 text-emerald-400' : 'text-[11px] mt-1 text-amber-400';});
+
+function saveProject(){
+  const name=document.getElementById('fName').value.trim();
+  const link=document.getElementById('fLink').value.trim();
+  if(!name || !link){ toast('Name & Live Link required'); return; }
+  const live=isVercelLive(link);
+  projects.push({id:Date.now(), name, type:curType, link, websiteLink:link, status: live ? 'Live' : 'Not Live', live, date:new Date().toISOString()});
+  localStorage.setItem('bd_empire_projects_v4', JSON.stringify(projects));
+  localStorage.setItem('bd_empire_projects', JSON.stringify(projects));
+  closeAddModal(); render(); toast(live ? '🚀 Saved & Live Connected (vercel.app)' : 'Saved • Not Live - Use vercel.app link');
+}
+
+function saveAds(){
+  ads={bannerCode: document.getElementById('bannerCode').value, bannerEnabled: document.getElementById('bannerEnabled').checked, interCode: document.getElementById('interCode').value, interEnabled: document.getElementById('interEnabled').checked};
+  localStorage.setItem('bd_empire_ads', JSON.stringify(ads));
+  render(); toast('Ad codes saved & injected to #banner-ad');
+}
+
+function setPin(){const v=document.getElementById('newPin').value.trim(); if(v.length!==4){ toast('4-digit PIN'); return;} localStorage.setItem('bd_empire_pin', v); pin=v; render(); toast('PIN set');}
+function toggleLock(){if(!pin){ toast('Set PIN first'); return;} pinEnabled=!pinEnabled; localStorage.setItem('bd_empire_pin_enabled', pinEnabled?'1':'0'); render(); toast(pinEnabled?'Lock Enabled':'Lock Disabled');}
+function unlockConsole(){const v=document.getElementById('pinInput').value; if(v===pin){ document.getElementById('lockScreen').classList.add('hidden'); toast('Unlocked'); } else { document.getElementById('pinErr').classList.remove('hidden'); }}
+function copyLink(l){navigator.clipboard.writeText(l); toast('Copied');}
+
+document.querySelectorAll('.tabBtn').forEach(btn=>{btn.addEventListener('click', ()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden')); document.getElementById('tab-'+btn.dataset.tab).classList.remove('hidden'); document.querySelectorAll('.tabBtn').forEach(b=>{b.className='tabBtn w-full text-left px-3 py-2.5 rounded-xl text-zinc-400 text-[13px]';}); btn.className='tabBtn w-full text-left px-3 py-2.5 rounded-xl bg-white text-black text-[13px] font-medium';});});
+
+render();
+</script>
+</body>
+</html>
